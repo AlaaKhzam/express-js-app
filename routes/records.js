@@ -5,6 +5,7 @@ import createRecord from "../services/records/createRecord.js";
 import updateRecordById from "../services/records/updateRecordById.js";
 import deleteRecord from "../services/records/deleteRecord.js";
 import authMiddleware from "../middleware/auth.js";
+import notFoundErrorHandler from "../middleware/notFoundErrorHandler.js";
 
 const recordsRouter = express.Router();
 
@@ -19,8 +20,9 @@ recordsRouter.get("/", (req, res) => {
   }
 });
 
-recordsRouter.get("/:id", (req, res) => {
-  try {
+recordsRouter.get(
+  "/:id",
+  (req, res) => {
     const { id } = req.params;
     const record = getRecordById(id);
 
@@ -29,11 +31,9 @@ recordsRouter.get("/:id", (req, res) => {
     } else {
       res.status(200).json(record);
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong while getting record by id!");
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
 recordsRouter.post("/", authMiddleware, (req, res) => {
   try {
@@ -46,8 +46,10 @@ recordsRouter.post("/", authMiddleware, (req, res) => {
   }
 });
 
-recordsRouter.put("/:id", authMiddleware, (req, res) => {
-  try {
+recordsRouter.put(
+  "/:id",
+  authMiddleware,
+  (req, res) => {
     const { id } = req.params;
     const { title, artist, year, available, genre } = req.body;
     const updatedRecord = updateRecordById(
@@ -59,14 +61,14 @@ recordsRouter.put("/:id", authMiddleware, (req, res) => {
       genre
     );
     res.status(200).json(updatedRecord);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong while updating record by id!");
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
-recordsRouter.delete("/:id", authMiddleware, (req, res) => {
-  try {
+recordsRouter.delete(
+  "/:id",
+  authMiddleware,
+  (req, res) => {
     const { id } = req.params;
     const deletedRecordId = deleteRecord(id);
 
@@ -77,10 +79,8 @@ recordsRouter.delete("/:id", authMiddleware, (req, res) => {
         message: `Record with id ${deletedRecordId} was deleted!`,
       });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong while deleting record by id!");
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
 export default recordsRouter;

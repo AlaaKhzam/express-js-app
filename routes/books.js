@@ -6,6 +6,7 @@ import updateBookById from "../services/books/updateBookById.js";
 import deleteBook from "../services/books/deleteBook.js";
 // import authMiddleware from "../middleware/auth.js";
 import authMiddleware from "../middleware/advancedAuth.js";
+import notFoundErrorHandler from "../middleware/notFoundErrorHandler.js";
 
 // create a router instance
 const booksRouter = express.Router();
@@ -21,21 +22,15 @@ booksRouter.get("/", (req, res) => {
   }
 });
 
-booksRouter.get("/:id", (req, res) => {
-  try {
+booksRouter.get(
+  "/:id",
+  (req, res) => {
     const { id } = req.params;
     const book = getBookById(id);
-
-    if (!book) {
-      res.status(404).send(`Book with id ${id} was not found!`);
-    } else {
-      res.status(200).json(book);
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong while getting book by id!");
-  }
-});
+    res.status(200).json(book);
+  },
+  notFoundErrorHandler
+);
 
 booksRouter.post("/", authMiddleware, (req, res) => {
   try {
@@ -48,8 +43,10 @@ booksRouter.post("/", authMiddleware, (req, res) => {
   }
 });
 
-booksRouter.put("/:id", authMiddleware, (req, res) => {
-  try {
+booksRouter.put(
+  "/:id",
+  authMiddleware,
+  (req, res) => {
     const { id } = req.params;
     const { title, author, isbn, pages, available, genre } = req.body;
     const updatedBook = updateBookById(
@@ -62,29 +59,23 @@ booksRouter.put("/:id", authMiddleware, (req, res) => {
       genre
     );
     res.status(200).json(updatedBook);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong while updating book by id!");
-  }
-});
+  },
+  notFoundErrorHandler
+);
 
-booksRouter.delete("/:id", authMiddleware, (req, res) => {
-  try {
+booksRouter.delete(
+  "/:id",
+  authMiddleware,
+  (req, res) => {
     const { id } = req.params;
     const deletedBookId = deleteBook(id);
 
-    if (!deletedBookId) {
-      res.status(404).send(`Book with id ${id} was not found!`);
-    } else {
-      res.status(200).json({
-        message: `Book with id ${deletedBookId} was deleted!`,
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong while deleting book by id!");
-  }
-});
+    res.status(200).json({
+      message: `Book with id ${deletedBookId} was deleted!`,
+    });
+  },
+  notFoundErrorHandler
+);
 
 booksRouter.get("/about", (req, res) => {
   const html = "<h1>About Us</h1><p>Welcome to our website!</p>";
