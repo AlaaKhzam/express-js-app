@@ -12,7 +12,12 @@ const createBook = (title, author, isbn, pages, available, genre) => {
     genre,
   };
 
-  bookData.books.push(newBook);
+  try {
+    bookData.books.push(newBook);
+  } catch (error) {
+    console.log("Error creating book");
+    console.log(error);
+  }
 
   return newBook;
 };
