@@ -1,10 +1,11 @@
 import recordsData from "../../data/records.json" assert { type: "json" };
+import NotFoundError from "../../errors/NotFoundError.js";
 
 const updateRecordById = (id, title, artist, year, available, genre) => {
   const record = recordsData.records.find((record) => record.id === id);
 
   if (!record) {
-    throw new Error(`Record with id ${id} was not found!`);
+    throw new NotFoundError("Record", id);
   }
 
   record.title = title ?? record.title;
